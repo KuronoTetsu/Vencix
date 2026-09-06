@@ -1,0 +1,62 @@
+# ============================================================
+#  .gitignore — raiz do monorepo VenciX
+#  Nunca commitar segredos, artefatos de build ou dependências
+# ============================================================
+
+# ── Segredos (NUNCA versionar) ──────────────────────────────
+**/.env
+**/.env.local
+**/.env.*.local
+
+# ── Python / Backend ────────────────────────────────────────
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ambientes virtuais
+venv/
+.venv/
+**/venv/
+**/.venv/
+env/
+.env/
+
+# Pytest / Coverage
+.pytest_cache/
+**/.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Migrações compiladas (manter os .py, ignorar artefatos)
+*.egg-info/
+dist/
+build/
+
+# Flask instance folder
+instance/
+**/instance/
+
+# ── Node / Frontend (caso use bundler no futuro) ─────────────
+node_modules/
+**/node_modules/
+dist/
+.parcel-cache/
+
+# ── IDEs e editores ─────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Sistema operacional ──────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── Logs ────────────────────────────────────────────────────
+*.log
+logs/

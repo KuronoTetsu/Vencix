@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VenciX — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0E0A29;
+    --bg-alt: #150F38;
+    --card: #1C1548;
+    --card-hi: #251B5C;
+    --line: rgba(167,159,209,0.16);
+    --text: #F4F1FF;
+    --muted: #A79FD1;
+    --muted-dim: #7B72A8;
+
+    --safe: #17E3A3;
+    --safe-dim: rgba(23,227,163,0.14);
+    --warn: #FFB627;
+    --warn-dim: rgba(255,182,39,0.14);
+    --danger: #FF3B62;
+    --danger-dim: rgba(255,59,98,0.14);
+    --violet: #7B5CFF;
+    --violet-2: #B681FF;
+
+    --grad-brand: linear-gradient(135deg, #7B5CFF 0%, #B681FF 45%, #FF9BE0 100%);
+
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "Plus Jakarta Sans", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+
+    --container: 1180px;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html{ scroll-behavior: smooth; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; text-decoration:none; }
+  ul{ list-style:none; }
+  section{ position:relative; }
+  ::selection{ background: var(--violet); color:#fff; }
+  :focus-visible{ outline: 2px solid var(--violet-2); outline-offset: 3px; border-radius: 4px; }
+
+  .wrap{ max-width: var(--container); margin: 0 auto; padding: 0 32px; }
+
+  .eyebrow{
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--violet-2); display:inline-flex; align-items:center; gap:10px; font-weight:500;
+  }
+  .eyebrow::before{ content:""; width:7px; height:7px; border-radius:50%; background: var(--safe); box-shadow: 0 0 0 4px var(--safe-dim); }
+
+  h1,h2,h3,h4{ font-family: var(--display); font-weight:700; letter-spacing:-0.02em; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding: 14px 26px; border-radius:100px;
+    font-family: var(--body); font-weight:700; font-size:14.5px;
+    cursor:pointer; border:none;
+    transition: transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease, opacity .2s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{ background: var(--grad-brand); color:#100A2E; box-shadow: 0 10px 30px -8px rgba(123,92,255,0.65); }
+  .btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 16px 36px -8px rgba(123,92,255,0.8); }
+  .btn-ghost{ background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn-ghost:hover{ background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3); }
+  .btn-sm{ padding: 10px 18px; font-size: 13px; }
+  .btn:disabled{ opacity:.5; cursor:not-allowed; transform:none !important; }
+  .btn svg{ width:15px; height:15px; }
+
+  /* ---------- HEADER ---------- */
+  header{
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    padding: 20px 0;
+    transition: background .3s ease, padding .3s ease, border-color .3s ease;
+    border-bottom: 1px solid transparent;
+  }
+  header.scrolled{
+    background: rgba(14,10,41,0.85);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    padding: 14px 0; border-bottom: 1px solid var(--line);
+  }
+  nav{ display:flex; align-items:center; justify-content:space-between; }
+  .logo{ display:flex; align-items:center; gap:10px; font-family: var(--display); font-weight:800; font-size:21px; letter-spacing:-0.01em; }
+  .logo .dot{ width:11px; height:11px; border-radius:3px; background: var(--grad-brand); box-shadow: 0 0 16px rgba(123,92,255,0.8); transform: rotate(45deg); }
+  .logo span.x{ color: var(--violet-2); }
+  .nav-links{ display:flex; gap:30px; align-items:center; }
+  .nav-links a{ font-size:14.5px; font-weight:600; color: var(--muted); transition: color .2s ease; display:flex; align-items:center; gap:7px; }
+  .nav-links a:hover{ color: var(--text); }
+  .nav-links a svg{ width:15px; height:15px; }
+  .user-chip{ display:flex; align-items:center; gap:9px; padding: 7px 14px 7px 7px; border:1px solid var(--line); border-radius:100px; }
+  .user-chip .av{ width:26px; height:26px; border-radius:50%; background: var(--grad-brand); flex-shrink:0; }
+  .user-chip span{ font-size:12.5px; font-weight:600; color: var(--muted); }
+  @media (max-width: 720px){ .nav-links a.hide-mobile{ display:none; } .user-chip span{ display:none; } }
+
+  /* ---------- HERO / PAGE HEADER ---------- */
+  .dashboard-hero{
+    padding: 128px 0 56px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-blob{ position:absolute; border-radius:50%; filter: blur(90px); pointer-events:none; z-index:0; }
+  .hb-1{ width:420px; height:420px; background: radial-gradient(circle, #7B5CFF, transparent 70%); top:-180px; left:-120px; opacity:.45; }
+  .hb-2{ width:360px; height:360px; background: radial-gradient(circle, #17E3A3, transparent 70%); top:-80px; right:-100px; opacity:.22; }
+
+  .hero-top{ position:relative; z-index:2; display:flex; align-items:flex-start; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  .dashboard-hero h1{ font-size: clamp(28px, 3.4vw, 38px); margin: 14px 0 10px; }
+  .dashboard-hero p.sub{ color: var(--muted); max-width:520px; font-size:15.5px; }
+  .proto-badge{
+    font-family: var(--mono); font-size:11px; color: var(--muted-dim);
+    border: 1px dashed var(--line); border-radius:100px; padding:7px 14px;
+    display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
+  }
+  .proto-badge svg{ width:13px; height:13px; }
+
+  /* ---------- KPI CARDS ---------- */
+  .kpi-grid{ position:relative; z-index:2; display:grid; grid-template-columns: repeat(4,1fr); gap:16px; margin-top:36px; }
+  .kpi-card{
+    background: var(--card); border:1px solid var(--line); border-radius:18px;
+    padding: 20px 22px; display:flex; align-items:center; gap:16px;
+    border-left: 3px solid var(--line);
+    transition: transform .25s ease, border-color .25s ease;
+  }
+  .kpi-card:hover{ transform: translateY(-3px); }
+  .kpi-card.kpi-total{ border-left-color: var(--violet-2); }
+  .kpi-card.kpi-safe{ border-left-color: var(--safe); }
+  .kpi-card.kpi-warn{ border-left-color: var(--warn); }
+  .kpi-card.kpi-danger{ border-left-color: var(--danger); }
+  .kpi-icon{ width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .kpi-icon svg{ width:20px; height:20px; }
+  .kpi-total .kpi-icon{ background: rgba(123,92,255,0.16); } .kpi-total .kpi-icon svg{ color: var(--violet-2); }
+  .kpi-safe .kpi-icon{ background: var(--safe-dim); } .kpi-safe .kpi-icon svg{ color: var(--safe); }
+  .kpi-warn .kpi-icon{ background: var(--warn-dim); } .kpi-warn .kpi-icon svg{ color: var(--warn); }
+  .kpi-danger .kpi-icon{ background: var(--danger-dim); } .kpi-danger .kpi-icon svg{ color: var(--danger); }
+  .kpi-value{ font-family: var(--display); font-size:26px; font-weight:700; line-height:1; margin-bottom:4px; }
+  .kpi-label{ font-size:12.5px; color: var(--muted-dim); font-weight:600; }
+  @media (max-width: 900px){ .kpi-grid{ grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px){ .kpi-grid{ grid-template-columns: 1fr; } }
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal{ opacity:0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform: translateY(0); }
+
+  /* ---------- CONTENT LAYOUT ---------- */
+  .dashboard-content{ display:grid; grid-template-columns: 1fr; gap:24px; padding: 8px 0 90px; align-items:start; }
+  @media (min-width: 980px){ .dashboard-content{ grid-template-columns: 380px 1fr; } }
+
+  .panel{ background: var(--card); border:1px solid var(--line); border-radius:20px; padding: 28px 26px; }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:22px; }
+  .panel-head h2{ font-size:19px; }
+  .panel-head .edit-tag{ font-family: var(--mono); font-size:11px; color: var(--violet-2); background: rgba(123,92,255,0.14); padding:5px 10px; border-radius:100px; }
+
+  @media (min-width: 980px){ .panel.form-panel{ position: sticky; top: 100px; } }
+
+  /* ---------- FORM ---------- */
+  .field{ margin-bottom:17px; }
+  .field label{ display:block; font-size:12.5px; font-weight:600; color: var(--muted); margin-bottom:7px; }
+  .field-input{
+    position:relative; display:flex; align-items:center;
+    background: var(--bg-alt); border:1px solid var(--line); border-radius:12px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .field-input:focus-within{ border-color: var(--violet); box-shadow: 0 0 0 3px rgba(123,92,255,.18); }
+  .field-input svg{ width:16px; height:16px; margin-left:14px; color: var(--muted-dim); flex-shrink:0; }
+  .field-input input{
+    flex:1; background:transparent; border:none; outline:none; min-width:0;
+    padding: 12px 14px; font-family: var(--body); font-size:14.5px; color: var(--text);
+  }
+  .field-input input::placeholder{ color: var(--muted-dim); }
+  .field-hint{ font-size:11.5px; color: var(--muted-dim); margin-top:6px; }
+  .field-error{ font-size:11.5px; color: var(--danger); margin-top:6px; display:none; }
+  .field.invalid .field-input{ border-color: var(--danger); }
+  .field.invalid .field-error{ display:block; }
+
+  .form-actions{ display:flex; gap:12px; margin-top:22px; }
+  .form-actions .btn{ flex:1; }
+
+  .form-msg{
+    margin-top:16px; font-size:12.5px; font-family: var(--mono);
+    color: var(--safe); display:flex; align-items:center; gap:7px;
+    opacity:0; transform: translateY(-4px); transition: opacity .3s ease, transform .3s ease; height:0; overflow:hidden;
+  }
+  .form-msg.show{ opacity:1; transform:translateY(0); height:auto; margin-top:16px; }
+  .form-msg svg{ width:14px; height:14px; flex-shrink:0; }
+
+  /* ---------- FILTER TOOLBAR ---------- */
+  .toolbar{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:20px; }
+  .search-input{ flex:1; min-width:180px; }
+  .select-wrap{
+    position:relative; display:flex; align-items:center;
+    background: var(--bg-alt); border:1px solid var(--line); border-radius:12px;
+  }
+  .select-wrap svg{ width:15px; height:15px; margin-left:14px; color: var(--muted-dim); flex-shrink:0; }
+  .select-wrap select{
+    appearance:none; background:transparent; border:none; outline:none;
+    padding: 11px 34px 11px 10px; font-family: var(--body); font-size:13.5px; color: var(--text); cursor:pointer;
+  }
+  .select-wrap::after{
+    content:""; position:absolute; right:14px; top:50%; width:8px; height:8px;
+    border-right:1.6px solid var(--muted-dim); border-bottom:1.6px solid var(--muted-dim);
+    transform: translateY(-70%) rotate(45deg); pointer-events:none;
+  }
+  .select-wrap select option{ background: var(--bg-alt); color: var(--text); }
+
+  /* ---------- TABLE ---------- */
+  .table-wrap{ overflow-x:auto; border-radius:14px; }
+  .products-table{ width:100%; border-collapse: separate; border-spacing: 0 10px; min-width:640px; }
+  .products-table th, .products-table td{ padding: 14px 18px; text-align:left; font-size:13.5px; }
+  .products-table th{ background: var(--bg-alt); color: var(--muted-dim); font-weight:600; font-size:11.5px; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+  .products-table th:first-child{ border-radius:10px 0 0 10px; }
+  .products-table th:last-child{ border-radius:0 10px 10px 0; text-align:right; }
+  .products-table td{ background: var(--bg-alt); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .products-table td:first-child{ border-left:1px solid var(--line); border-radius:10px 0 0 10px; font-weight:600; }
+  .products-table td:last-child{ border-right:1px solid var(--line); border-radius:0 10px 10px 0; text-align:right; }
+  .products-table tr{ transition: transform .5s ease, opacity .5s ease; }
+  .products-table tr.row-enter{ opacity:0; transform: translateY(8px); }
+  .products-table tbody tr:hover td{ background: var(--card-hi); }
+  .ean-mono{ font-family: var(--mono); font-size:12.5px; color: var(--muted); }
+
+  .status-badge{ display:inline-flex; align-items:center; gap:6px; padding: 5px 11px; border-radius:100px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
+  .status-badge .sdot{ width:6px; height:6px; border-radius:50%; }
+  .status-ok{ background: var(--safe-dim); color: var(--safe); } .status-ok .sdot{ background: var(--safe); }
+  .status-warn{ background: var(--warn-dim); color: var(--warn); } .status-warn .sdot{ background: var(--warn); }
+  .status-danger{ background: var(--danger-dim); color: var(--danger); } .status-danger .sdot{ background: var(--danger); }
+
+  .row-actions{ display:inline-flex; gap:6px; }
+  .icon-btn{
+    width:32px; height:32px; border-radius:9px; border:1px solid var(--line);
+    background: transparent; color: var(--muted); cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .icon-btn svg{ width:15px; height:15px; }
+  .icon-btn:hover{ background: rgba(255,255,255,0.06); color: var(--text); }
+  .icon-btn.danger:hover{ background: var(--danger-dim); color: var(--danger); border-color: rgba(255,59,98,.4); }
+  .icon-btn.editing{ background: var(--violet); color:#fff; border-color: var(--violet); }
+
+  .empty-state{ text-align:center; padding: 56px 20px; color: var(--muted-dim); }
+  .empty-state svg{ width:40px; height:40px; margin: 0 auto 14px; opacity:.6; }
+  .empty-state p{ font-size:14px; }
+
+  /* ---------- TOAST ---------- */
+  .toast{
+    position:fixed; bottom:26px; right:26px; z-index:300;
+    background: var(--card); border:1px solid var(--line); border-radius:12px;
+    padding: 14px 18px; display:flex; align-items:center; gap:10px;
+    font-size:13.5px; font-weight:600; box-shadow: 0 20px 50px -18px rgba(0,0,0,.6);
+    transform: translateY(16px); opacity:0; pointer-events:none; transition: transform .35s ease, opacity .35s ease;
+  }
+  .toast.show{ transform: translateY(0); opacity:1; }
+  .toast .t-icon{ width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .toast .t-icon svg{ width:14px; height:14px; }
+  .toast.success .t-icon{ background: var(--safe-dim); color: var(--safe); }
+  .toast.danger .t-icon{ background: var(--danger-dim); color: var(--danger); }
+
+  /* ---------- FOOTER ---------- */
+  footer{ border-top: 1px solid var(--line); padding: 50px 0 34px; }
+  .footer-grid{ display:grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap:40px; margin-bottom:40px; }
+  .footer-brand p{ color: var(--muted-dim); font-size:13.5px; margin-top:14px; max-width:260px; }
+  .footer-col h5{ font-family: var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color: var(--muted-dim); margin-bottom:16px; }
+  .footer-col a{ display:block; font-size:14px; color: var(--muted); margin-bottom:12px; transition: color .2s ease; }
+  .footer-col a:hover{ color: var(--text); }
+  .footer-bottom{ display:flex; justify-content:space-between; align-items:center; padding-top:24px; border-top:1px solid var(--line); font-size:13px; color: var(--muted-dim); flex-wrap:wrap; gap:14px; }
+  @media (max-width: 760px){ .footer-grid{ grid-template-columns: 1fr 1fr; } }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="wrap">
+    <nav>
+      <a href="index.html" class="logo"><span class="dot"></span>Venci<span class="x">X</span></a>
+      <div class="nav-links">
+        <a href="index.html" class="hide-mobile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+          Home
+        </a>
+        <span class="user-chip">
+      <span class="av"></span>
+      <span id="user-email-chip">Loja Demonstração</span>
+      </span>
+        <a href="vencix-auth.html" id="logout-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          Sair
+        </a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="dashboard-hero">
+    <div class="hero-blob hb-1" data-parallax="0.10"></div>
+    <div class="hero-blob hb-2" data-parallax="0.16"></div>
+
+    <div class="wrap">
+      <div class="hero-top reveal">
+        <div>
+          <span class="eyebrow">Painel de controle</span>
+          <h1>Seus produtos, sempre à vista</h1>
+          <p class="sub">Cadastre produtos e acompanhe o que está em dia, o que exige atenção e o que está prestes a vencer.</p>
+        </div>
+        <span class="proto-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Protótipo — dados válidos apenas nesta sessão
+        </span>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-total reveal">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M3 7l2-4h14l2 4"/><path d="M9 11a3 3 0 006 0"/></svg></div>
+          <div><div class="kpi-value" id="kpi-total">0</div><div class="kpi-label">Total de produtos</div></div>
+        </div>
+        <div class="kpi-card kpi-safe reveal">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <div><div class="kpi-value" id="kpi-safe">0</div><div class="kpi-label">Em dia</div></div>
+        </div>
+        <div class="kpi-card kpi-warn reveal">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></div>
+          <div><div class="kpi-value" id="kpi-warn">0</div><div class="kpi-label">Precisam de atenção</div></div>
+        </div>
+        <div class="kpi-card kpi-danger reveal">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 7v6l4 2"/></svg></div>
+          <div><div class="kpi-value" id="kpi-danger">0</div><div class="kpi-label">Urgentes / vencidos</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <section class="wrap">
+    <div class="dashboard-content">
+
+      <!-- FORM PANEL -->
+      <div class="panel form-panel reveal">
+        <div class="panel-head">
+          <h2 id="form-title">Cadastrar produto</h2>
+          <span class="edit-tag" id="edit-tag" style="display:none;">Editando</span>
+        </div>
+
+        <form id="product-form" novalidate>
+          <div class="field" id="field-name">
+            <label for="product-name">Nome do produto</label>
+            <div class="field-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V7a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 7v10a2 2 0 001 1.73l7 4a2 2 0 002 0l3.5-2"/><path d="M3.3 6.8L12 12l8.7-5.2"/><path d="M12 22V12"/></svg>
+              <input id="product-name" type="text" placeholder="Ex: Arroz Tipo 1" required>
+            </div>
+            <span class="field-error">Informe o nome do produto.</span>
+          </div>
+
+          <div class="field" id="field-ean">
+            <label for="ean-code">Código EAN</label>
+            <div class="field-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M7 4v16M11 4v16M15 4v9M17.5 4v9"/></svg>
+              <input id="ean-code" type="text" inputmode="numeric" maxlength="13" placeholder="Ex: 7891234567890">
+            </div>
+            <span class="field-hint">Opcional — 8 a 13 dígitos.</span>
+            <span class="field-error">O código EAN deve conter apenas números (8–13 dígitos).</span>
+          </div>
+
+          <div class="field" id="field-date">
+            <label for="expiry-date">Data de validade</label>
+            <div class="field-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+              <input id="expiry-date" type="date" required>
+            </div>
+            <span class="field-error">Informe a data de validade.</span>
+          </div>
+
+          <div class="field" id="field-qty">
+            <label for="quantity">Quantidade</label>
+            <div class="field-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 7.3L12 12m0 0L3.5 7.3M12 12v9"/><path d="M12 3l8.5 4.3v9.4L12 21l-8.5-4.3V7.3z"/></svg>
+              <input id="quantity" type="number" min="1" value="1" required>
+            </div>
+            <span class="field-error">Informe uma quantidade válida.</span>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submit-btn">Cadastrar produto</button>
+            <button type="button" class="btn btn-ghost" id="cancel-edit-btn" style="display:none;">Cancelar</button>
+          </div>
+
+          <div class="form-msg" id="form-msg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span id="form-msg-text">Produto cadastrado!</span>
+          </div>
+        </form>
+      </div>
+
+      <!-- FILTER + TABLE PANEL -->
+      <div class="panel reveal">
+        <div class="panel-head">
+          <h2>Produtos cadastrados</h2>
+        </div>
+
+        <div class="toolbar">
+          <div class="field-input search-input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="search-input" type="text" placeholder="Buscar por nome ou código EAN">
+          </div>
+          <div class="select-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+            <select id="month-select" aria-label="Filtrar por mês"></select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Código EAN</th>
+                <th>Validade</th>
+                <th>Qtd.</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="products-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="vencix-landing.html" class="logo"><span class="dot"></span>Venci<span class="x">X</span></a>
+        <p>Controle de validade para quem não pode se dar ao luxo de esquecer um prazo.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Produto</h5>
+        <a href="vencix-landing.html#como-funciona">Como funciona</a>
+        <a href="vencix-landing.html#recursos">Recursos</a>
+        <a href="vencix-landing.html#planos">Planos</a>
+      </div>
+      <div class="footer-col">
+        <h5>Empresa</h5>
+        <a href="#">Sobre</a>
+        <a href="#">Blog</a>
+        <a href="#">Contato</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="#">Termos de uso</a>
+        <a href="#">Privacidade</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 VenciX. Todos os direitos reservados.</span>
+      <span>Feito para quem cuida do estoque de verdade.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast">
+  <span class="t-icon" id="toast-icon"></span>
+  <span id="toast-text"></span>
+</div>
+
+<script src="./scripts/src/api.js"></script>
+<script src="./scripts/src/dashb.js"></script>
+
+</body>
+</html>

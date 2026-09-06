@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VenciX — Planos e Pagamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+  :root{
+    --bg: #0E0A29;
+    --bg-alt: #150F38;
+    --card: #1C1548;
+    --card-hi: #251B5C;
+    --line: rgba(167,159,209,0.16);
+    --text: #F4F1FF;
+    --muted: #A79FD1;
+    --muted-dim: #7B72A8;
+
+    --safe: #17E3A3;
+    --safe-dim: rgba(23,227,163,0.14);
+    --warn: #FFB627;
+    --warn-dim: rgba(255,182,39,0.14);
+    --danger: #FF3B62;
+    --danger-dim: rgba(255,59,98,0.14);
+    --violet: #7B5CFF;
+    --violet-2: #B681FF;
+
+    --grad-brand: linear-gradient(135deg, #7B5CFF 0%, #B681FF 45%, #FF9BE0 100%);
+
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "Plus Jakarta Sans", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+
+    --container: 1180px;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background: var(--bg); color: var(--text); font-family: var(--body);
+    line-height:1.5; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  }
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; text-decoration:none; }
+  ul{ list-style:none; }
+  section{ position:relative; }
+  ::selection{ background: var(--violet); color:#fff; }
+  :focus-visible{ outline:2px solid var(--violet-2); outline-offset:3px; border-radius:4px; }
+
+  .wrap{ max-width: var(--container); margin:0 auto; padding:0 32px; }
+
+  .eyebrow{
+    font-family: var(--mono); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+    color: var(--violet-2); display:inline-flex; align-items:center; gap:10px; font-weight:500;
+  }
+  .eyebrow::before{ content:""; width:7px; height:7px; border-radius:50%; background: var(--safe); box-shadow:0 0 0 4px var(--safe-dim); }
+
+  h1,h2,h3,h4{ font-family: var(--display); font-weight:700; letter-spacing:-0.02em; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding: 15px 28px; border-radius:100px; font-family: var(--body); font-weight:700; font-size:15px;
+    cursor:pointer; border:none; transition: transform .25s ease, box-shadow .25s ease, background .25s ease, opacity .2s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{ background: var(--grad-brand); color:#100A2E; box-shadow: 0 10px 30px -8px rgba(123,92,255,0.65); }
+  .btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 16px 36px -8px rgba(123,92,255,0.8); }
+  .btn-ghost{ background: transparent; color: var(--text); border:1px solid var(--line); }
+  .btn-ghost:hover{ background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3); }
+  .btn-sm{ padding: 11px 20px; font-size:13.5px; }
+  .btn-block{ width:100%; }
+  .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none !important; }
+  .btn svg{ width:16px; height:16px; }
+  .btn .spinner{ width:16px; height:16px; border-radius:50%; border:2px solid rgba(16,10,46,.3); border-top-color:#100A2E; animation: spin .7s linear infinite; display:none; }
+  .btn.loading .spinner{ display:inline-block; }
+  .btn.loading .btn-label{ opacity:.7; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  /* ---------- HEADER ---------- */
+  header{ position:fixed; top:0; left:0; right:0; z-index:100; padding:20px 0; transition: background .3s ease, padding .3s ease, border-color .3s ease; border-bottom:1px solid transparent; }
+  header.scrolled{ background: rgba(14,10,41,0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); padding:14px 0; border-bottom:1px solid var(--line); }
+  nav{ display:flex; align-items:center; justify-content:space-between; }
+  .logo{ display:flex; align-items:center; gap:10px; font-family: var(--display); font-weight:800; font-size:21px; letter-spacing:-0.01em; }
+  .logo .dot{ width:11px; height:11px; border-radius:3px; background: var(--grad-brand); box-shadow:0 0 16px rgba(123,92,255,0.8); transform: rotate(45deg); }
+  .logo span.x{ color: var(--violet-2); }
+  .nav-links{ display:flex; gap:30px; align-items:center; }
+  .nav-links a{ font-size:14.5px; font-weight:600; color: var(--muted); transition: color .2s ease; }
+  .nav-links a:hover{ color: var(--text); }
+  @media (max-width: 720px){ .nav-links{ display:none; } }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding:150px 0 60px; position:relative; overflow:hidden; }
+  .hero-blob{ position:absolute; border-radius:50%; filter: blur(90px); pointer-events:none; z-index:0; }
+  .hb-1{ width:420px; height:420px; background: radial-gradient(circle, #7B5CFF, transparent 70%); top:-180px; left:-120px; opacity:.45; }
+  .hb-2{ width:360px; height:360px; background: radial-gradient(circle, #17E3A3, transparent 70%); top:-80px; right:-100px; opacity:.22; }
+  .hero-head{ position:relative; z-index:2; max-width:640px; margin:0 auto; text-align:center; }
+  .hero-head h1{ font-size: clamp(28px, 3.6vw, 42px); margin:14px 0 12px; }
+  .hero-head p{ color: var(--muted); font-size:16px; }
+
+  .reveal{ opacity:0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform: translateY(0); }
+
+  /* ---------- VIEWS ---------- */
+  .view{ padding-bottom: 100px; }
+  .view.hidden{ display:none; }
+
+  /* ---------- PRICING CARDS ---------- */
+  .pricing-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap:22px; align-items:stretch; margin-top:46px; }
+  .p-card{ background: var(--card); border:1px solid var(--line); border-radius:22px; padding:34px 28px; display:flex; flex-direction:column; position:relative; }
+  .p-card.pop{ background: linear-gradient(180deg, var(--card-hi), var(--card)); border-color: rgba(182,129,255,0.5); box-shadow: 0 30px 60px -24px rgba(123,92,255,0.45); transform: translateY(-10px); }
+  .p-card .pop-tag{ position:absolute; top:-13px; left:50%; transform:translateX(-50%); background: var(--grad-brand); color:#100A2E; font-size:11.5px; font-weight:800; padding:6px 16px; border-radius:100px; font-family: var(--mono); letter-spacing:.04em; }
+  .p-card h3{ font-size:20px; margin-bottom:6px; }
+  .p-card .p-desc{ font-size:13.5px; color: var(--muted-dim); margin-bottom:22px; }
+  .p-card .price{ font-family: var(--display); font-size:40px; font-weight:800; margin-bottom:4px; }
+  .p-card .price span{ font-family: var(--body); font-size:14px; font-weight:600; color: var(--muted); }
+  .p-card .p-period{ font-size:12.5px; color: var(--muted-dim); margin-bottom:26px; }
+  .p-card ul{ display:flex; flex-direction:column; gap:12px; margin-bottom:30px; flex-grow:1; }
+  .p-card ul li{ font-size:14px; display:flex; gap:10px; align-items:flex-start; color: var(--text); }
+  .p-card ul li svg{ width:16px; height:16px; color: var(--safe); flex-shrink:0; margin-top:3px; }
+  @media (max-width: 900px){ .pricing-grid{ grid-template-columns:1fr; } .p-card.pop{ transform:none; } }
+
+  .trust-note{ display:flex; align-items:center; justify-content:center; gap:9px; margin-top:36px; color: var(--muted-dim); font-size:13px; }
+  .trust-note svg{ width:15px; height:15px; color: var(--safe); }
+
+  /* ---------- CHECKOUT ---------- */
+  .checkout-back{ display:inline-flex; align-items:center; gap:8px; color: var(--muted); font-size:14px; font-weight:600; margin-bottom:28px; cursor:pointer; background:none; border:none; font-family: var(--body); }
+  .checkout-back:hover{ color: var(--text); }
+  .checkout-back svg{ width:16px; height:16px; }
+
+  .plan-summary{ display:flex; align-items:center; justify-content:space-between; gap:20px; background: var(--card); border:1px solid var(--line); border-radius:18px; padding:22px 26px; margin-bottom:28px; flex-wrap:wrap; }
+  .plan-summary .ps-name{ font-family: var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:.08em; color: var(--violet-2); margin-bottom:4px; }
+  .plan-summary .ps-price{ font-family: var(--display); font-size:24px; font-weight:700; }
+  .plan-summary .ps-price span{ font-family: var(--body); font-size:13px; font-weight:600; color: var(--muted); }
+  .plan-summary .change-plan{ font-size:13px; font-weight:700; color: var(--violet-2); background:none; border:none; cursor:pointer; font-family: var(--body); }
+  .plan-summary .change-plan:hover{ color: var(--text); }
+
+  .method-tabs{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-bottom:26px; }
+  .method-tab{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    padding: 16px 10px; border-radius:14px; border:1px solid var(--line); background: var(--card);
+    cursor:pointer; transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    font-family: var(--body); color: var(--muted); font-size:13px; font-weight:700;
+  }
+  .method-tab svg{ width:20px; height:20px; }
+  .method-tab:hover{ transform: translateY(-2px); }
+  .method-tab.active{ border-color: var(--violet); background: var(--card-hi); color: var(--text); box-shadow: 0 0 0 3px rgba(123,92,255,.16); }
+
+  .method-placeholder{
+    max-width:560px; margin:0 auto; text-align:center;
+    border: 1px dashed var(--line); border-radius:20px; padding:44px 32px;
+    color: var(--muted-dim);
+  }
+  .method-placeholder svg{ width:30px; height:30px; margin:0 auto 14px; opacity:.7; }
+  .method-placeholder p{ font-size:14px; }
+
+  .checkout-panel{
+    background: var(--card); border:1px solid var(--line); border-radius:20px; padding:32px; max-width:560px; margin:0 auto;
+    opacity:0; transform: translateY(10px); transition: opacity .35s ease, transform .35s ease;
+  }
+  .checkout-panel.visible{ opacity:1; transform: translateY(0); }
+  .checkout-panel h2{ font-size:19px; margin-bottom:6px; }
+  .checkout-panel .panel-sub{ font-size:13.5px; color: var(--muted-dim); margin-bottom:26px; }
+
+  .field{ margin-bottom:17px; }
+  .field label{ display:block; font-size:12.5px; font-weight:600; color: var(--muted); margin-bottom:7px; }
+  .field-input{ position:relative; display:flex; align-items:center; background: var(--bg-alt); border:1px solid var(--line); border-radius:12px; transition: border-color .2s ease, box-shadow .2s ease; }
+  .field-input:focus-within{ border-color: var(--violet); box-shadow: 0 0 0 3px rgba(123,92,255,.18); }
+  .field-input svg{ width:16px; height:16px; margin-left:14px; color: var(--muted-dim); flex-shrink:0; }
+  .field-input input{ flex:1; background:transparent; border:none; outline:none; min-width:0; padding:12px 14px; font-family: var(--body); font-size:14.5px; color: var(--text); }
+  .field-input input::placeholder{ color: var(--muted-dim); }
+  .field-input .brand-tag{ font-family: var(--mono); font-size:11px; color: var(--violet-2); padding-right:14px; white-space:nowrap; }
+  .field-row{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+  .field-error{ font-size:11.5px; color: var(--danger); margin-top:6px; display:none; }
+  .field.invalid .field-input{ border-color: var(--danger); }
+  .field.invalid .field-error{ display:block; }
+
+  .secure-note{ display:flex; align-items:center; gap:8px; font-size:12px; color: var(--muted-dim); margin: 18px 0; }
+  .secure-note svg{ width:14px; height:14px; color: var(--safe); }
+
+  /* ---------- PIX PANEL ---------- */
+  .pix-qr-wrap{ display:flex; justify-content:center; margin-bottom:22px; }
+  .pix-qr-box{ background:#fff; padding:14px; border-radius:16px; }
+  .pix-amount{ text-align:center; margin-bottom:22px; }
+  .pix-amount .amt{ font-family: var(--display); font-size:32px; font-weight:800; }
+  .pix-amount .lbl{ font-size:12.5px; color: var(--muted-dim); }
+  .pix-code-row{ display:flex; gap:10px; margin-bottom:20px; }
+  .pix-code-row .field-input{ flex:1; }
+  .pix-code-row input{ font-family: var(--mono); font-size:12px; }
+  .pix-steps{ display:flex; flex-direction:column; gap:10px; margin-bottom:22px; }
+  .pix-steps li{ display:flex; gap:10px; font-size:13.5px; color: var(--muted); align-items:flex-start; }
+  .pix-steps span.n{ width:20px; height:20px; border-radius:50%; background: var(--card-hi); color: var(--violet-2); font-family: var(--mono); font-size:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+  .pix-demo-note{ text-align:center; padding-top:14px; border-top:1px dashed var(--line); }
+  .pix-demo-note button{ background:none; border:none; color: var(--muted-dim); font-size:12.5px; font-family: var(--mono); cursor:pointer; text-decoration:underline; }
+  .pix-demo-note button:hover{ color: var(--muted); }
+
+  /* ---------- SUCCESS ---------- */
+  .success-box{ max-width:460px; margin:60px auto 0; text-align:center; }
+  .success-icon{ width:72px; height:72px; border-radius:50%; background: var(--safe-dim); display:flex; align-items:center; justify-content:center; margin:0 auto 24px; }
+  .success-icon svg{ width:32px; height:32px; color: var(--safe); }
+  .success-box h1{ font-size:26px; margin-bottom:10px; }
+  .success-box p{ color: var(--muted); font-size:14.5px; margin-bottom:26px; }
+  .success-summary{ background: var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 24px; text-align:left; margin-bottom:28px; }
+  .success-summary .row{ display:flex; justify-content:space-between; font-size:13.5px; padding:8px 0; border-bottom:1px solid var(--line); }
+  .success-summary .row:last-child{ border-bottom:none; }
+  .success-summary .row span:first-child{ color: var(--muted-dim); }
+  .success-summary .row span:last-child{ font-weight:700; }
+  .success-actions{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .demo-flag{ font-family: var(--mono); font-size:11.5px; color: var(--muted-dim); margin-top:22px; }
+
+  /* ---------- TOAST ---------- */
+  .toast{ position:fixed; bottom:26px; right:26px; z-index:300; background: var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 18px; display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; box-shadow: 0 20px 50px -18px rgba(0,0,0,.6); transform: translateY(16px); opacity:0; pointer-events:none; transition: transform .35s ease, opacity .35s ease; }
+  .toast.show{ transform: translateY(0); opacity:1; }
+  .toast svg{ width:16px; height:16px; color: var(--safe); }
+
+  /* ---------- FOOTER ---------- */
+  footer{ border-top:1px solid var(--line); padding:50px 0 34px; }
+  .footer-grid{ display:grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap:40px; margin-bottom:40px; }
+  .footer-brand p{ color: var(--muted-dim); font-size:13.5px; margin-top:14px; max-width:260px; }
+  .footer-col h5{ font-family: var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color: var(--muted-dim); margin-bottom:16px; }
+  .footer-col a{ display:block; font-size:14px; color: var(--muted); margin-bottom:12px; transition: color .2s ease; }
+  .footer-col a:hover{ color: var(--text); }
+  .footer-bottom{ display:flex; justify-content:space-between; align-items:center; padding-top:24px; border-top:1px solid var(--line); font-size:13px; color: var(--muted-dim); flex-wrap:wrap; gap:14px; }
+  @media (max-width: 760px){ .footer-grid{ grid-template-columns: 1fr 1fr; } }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="wrap">
+    <nav>
+      <a href="vencix-landing.html" class="logo"><span class="dot"></span>Venci<span class="x">X</span></a>
+      <div class="nav-links">
+        <a href="vencix-landing.html#como-funciona">Como funciona</a>
+        <a href="vencix-landing.html#recursos">Recursos</a>
+        <a href="vencix-landing.html#contato">Contato</a>
+      </div>
+      <a href="vencix-auth.html" class="btn btn-ghost btn-sm">Entrar</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="hero-blob hb-1" data-parallax="0.10"></div>
+    <div class="hero-blob hb-2" data-parallax="0.16"></div>
+    <div class="wrap">
+      <div class="hero-head reveal">
+        <span class="eyebrow">Planos e pagamento</span>
+        <h1>Escolha o plano ideal para o seu estoque</h1>
+        <p>Sem burocracia: escolha o plano, defina a forma de pagamento e comece a controlar suas validades hoje.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VIEW 1 — PLANOS ===================== -->
+  <section class="view wrap" id="view-plans">
+    <div class="pricing-grid">
+      <div class="p-card reveal">
+        <h3>Básico</h3>
+        <p class="p-desc">Para quem está começando a organizar o controle de validade.</p>
+        <div class="price">R$ 69<span>/mês</span></div>
+        <div class="p-period">1 loja · até 300 produtos</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Cadastro por lote e código de barras</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Alertas por e-mail</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Painel por status</li>
+        </ul>
+        <button class="btn btn-ghost btn-block" data-select-plan="basico">Escolher plano</button>
+      </div>
+
+      <div class="p-card pop reveal">
+        <span class="pop-tag">Mais escolhido</span>
+        <h3>Pro</h3>
+        <p class="p-desc">Para operações com estoque em movimento constante.</p>
+        <div class="price">R$ 169<span>/mês</span></div>
+        <div class="p-period">até 3 lojas · produtos ilimitados</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Tudo do plano Básico</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Alertas por WhatsApp</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Relatório de perdas evitadas</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Multiusuário</li>
+        </ul>
+        <button class="btn btn-primary btn-block" data-select-plan="pro">Escolher plano</button>
+      </div>
+
+      <div class="p-card reveal">
+        <h3>Rede</h3>
+        <p class="p-desc">Para redes e distribuidoras com várias unidades.</p>
+        <div class="price">Sob consulta</div>
+        <div class="p-period">lojas ilimitadas · suporte dedicado</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Tudo do plano Pro</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Integração via API</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Gestor de conta dedicado</li>
+        </ul>
+        <a href="#" class="btn btn-ghost btn-block">Falar com vendas</a>
+      </div>
+    </div>
+
+    <p class="trust-note reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Pagamento seguro no cartão ou via Pix — cancele quando quiser
+    </p>
+  </section>
+
+  <!-- ===================== VIEW 2 — CHECKOUT ===================== -->
+  <section class="view wrap hidden" id="view-checkout">
+    <button class="checkout-back" id="back-to-plans">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Voltar aos planos
+    </button>
+
+    <div class="plan-summary">
+      <div>
+        <div class="ps-name" id="co-plan-name">Plano</div>
+        <div class="ps-price" id="co-plan-price">R$ 0<span>/mês</span></div>
+      </div>
+      <button class="change-plan" id="change-plan-btn">Trocar plano</button>
+    </div>
+
+    <div class="method-tabs">
+      <button class="method-tab" data-method="credito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Crédito
+      </button>
+      <button class="method-tab" data-method="debito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+        Débito
+      </button>
+      <button class="method-tab" data-method="pix">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Pix
+      </button>
+    </div>
+
+    <div class="method-placeholder" id="method-placeholder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      <p>Selecione crédito, débito ou Pix acima para continuar.</p>
+    </div>
+
+    <!-- CARD PANEL (credito / debito) -->
+    <div class="checkout-panel hidden" id="panel-card">
+      <h2 id="card-panel-title">Pagamento no cartão de crédito</h2>
+      <p class="panel-sub">Seus dados ficam só neste dispositivo — este é um protótipo, nenhuma cobrança real é feita.</p>
+
+      <form id="card-form" novalidate>
+        <div class="field" id="field-card-number">
+          <label for="card-number">Número do cartão</label>
+          <div class="field-input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            <input id="card-number" type="text" inputmode="numeric" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="cc-number" required>
+            <span class="brand-tag" id="card-brand"></span>
+          </div>
+          <span class="field-error">Informe um número de cartão válido (16 dígitos).</span>
+        </div>
+
+        <div class="field" id="field-card-name">
+          <label for="card-name">Nome impresso no cartão</label>
+          <div class="field-input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input id="card-name" type="text" placeholder="Como está impresso no cartão" autocomplete="cc-name" required>
+          </div>
+          <span class="field-error">Informe o nome impresso no cartão.</span>
+        </div>
+
+        <div class="field-row">
+          <div class="field" id="field-card-expiry">
+            <label for="card-expiry">Validade</label>
+            <div class="field-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+              <input id="card-expiry" type="text" inputmode="numeric" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp" required>
+            </div>
+            <span class="field-error">Data inválida.</span>
+          </div>
+          <div class="field" id="field-card-cvv">
+            <label for="card-cvv">CVV</label>
+            <div class="field-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input id="card-cvv" type="text" inputmode="numeric" placeholder="123" maxlength="4" autocomplete="off" required>
+            </div>
+            <span class="field-error">CVV inválido.</span>
+          </div>
+        </div>
+
+        <div class="field" id="field-card-cpf">
+          <label for="card-cpf">CPF do titular</label>
+          <div class="field-input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            <input id="card-cpf" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" required>
+          </div>
+          <span class="field-error">Informe um CPF válido.</span>
+        </div>
+
+        <div class="secure-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Ambiente de demonstração — nenhum dado é enviado ou armazenado.
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="card-submit-btn">
+          <span class="spinner"></span>
+          <span class="btn-label" id="card-submit-label">Confirmar pagamento</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- PIX PANEL -->
+    <div class="checkout-panel hidden" id="panel-pix">
+      <h2>Pagamento via Pix</h2>
+      <p class="panel-sub">Escaneie o QR Code ou copie o código para pagar no app do seu banco.</p>
+
+      <div class="pix-amount">
+        <div class="amt" id="pix-amount">R$ 0,00</div>
+        <div class="lbl">Valor da assinatura mensal</div>
+      </div>
+
+      <div class="pix-qr-wrap">
+        <div class="pix-qr-box" id="pix-qrcode"></div>
+      </div>
+
+      <div class="pix-code-row">
+        <div class="field-input">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          <input id="pix-code" type="text" readonly>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="pix-copy-btn">Copiar código</button>
+      </div>
+
+      <ol class="pix-steps">
+        <li><span class="n">1</span>Abra o app do seu banco e escolha pagar via Pix.</li>
+        <li><span class="n">2</span>Escaneie o QR Code acima ou cole o código copiado.</li>
+        <li><span class="n">3</span>Confirme os dados e finalize o pagamento — a assinatura é ativada automaticamente após a confirmação.</li>
+      </ol>
+
+      <div class="pix-demo-note">
+        <button type="button" id="pix-simulate-btn">Simular pagamento confirmado (apenas para teste deste protótipo)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VIEW 3 — SUCESSO ===================== -->
+  <section class="view wrap hidden" id="view-success">
+    <div class="success-box">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h1>Assinatura confirmada!</h1>
+      <p>Tudo certo — seu acesso ao VenciX já pode ser liberado.</p>
+
+      <div class="success-summary">
+        <div class="row"><span>Plano</span><span id="sum-plan">—</span></div>
+        <div class="row"><span>Valor</span><span id="sum-amount">—</span></div>
+        <div class="row"><span>Forma de pagamento</span><span id="sum-method">—</span></div>
+      </div>
+
+      <div class="success-actions">
+        <a href="vencix-dashboard.html" class="btn btn-primary">Ir para o Dashboard</a>
+        <a href="vencix-landing.html" class="btn btn-ghost">Página inicial</a>
+      </div>
+      <p class="demo-flag">Simulação de pagamento — nenhuma cobrança real foi realizada.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="vencix-landing.html" class="logo"><span class="dot"></span>Venci<span class="x">X</span></a>
+        <p>Controle de validade para quem não pode se dar ao luxo de esquecer um prazo.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Produto</h5>
+        <a href="vencix-landing.html#como-funciona">Como funciona</a>
+        <a href="vencix-landing.html#recursos">Recursos</a>
+        <a href="vencix-planos.html">Planos</a>
+      </div>
+      <div class="footer-col">
+        <h5>Empresa</h5>
+        <a href="#">Sobre</a>
+        <a href="#">Blog</a>
+        <a href="#">Contato</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="#">Termos de uso</a>
+        <a href="#">Privacidade</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 VenciX. Todos os direitos reservados.</span>
+      <span>Feito para quem cuida do estoque de verdade.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+  <span id="toast-text"></span>
+</div>
+
+<script src="./scripts/src/plan.js">
+ 
+  
+</script>
+
+</body>
+</html>
